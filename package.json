@@ -190,7 +190,7 @@
     "start:server": "node server/index.js",
     "start:client": "npm --prefix client start",
     "build:client": "npm --prefix client run build",
-    "lint": "eslint \"server/**/*.{js,ts}\" \"client/**/*.{js,ts,jsx,tsx}\""
+    "lint": "eslint --no-error-on-unmatched-pattern \"server/**/*.{js,ts}\" \"client/**/*.{js,ts,jsx,tsx}\""
   },
   "eslintConfig": {
     "root": true,
