@@ -1,0 +1,42 @@
+name: CI
+
+# trigger on pushes to main and on PRs targeting main
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service: [ server, client ]
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.service }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Lint code
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build client (only)
+        if: matrix.service == 'client'
+        run: npm run build
