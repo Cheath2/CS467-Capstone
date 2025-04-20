@@ -1,12 +1,11 @@
 // server/routes/auth.js
+
 const express                   = require('express');
-const { body, validationResult }= require('express-validator');
-const bcrypt                    = require('bcryptjs');
-const jwt                       = require('jsonwebtoken');
-const User                      = require('../models/User');
+const { body }                  = require('express-validator');
+const { register, login }       = require('../controllers/authController');
 const router                    = express.Router();
 
-// Validation chains
+// Validation chains for registration
 const registrationChecks = [
   body('firstName')
     .trim()
@@ -20,6 +19,7 @@ const registrationChecks = [
     .normalizeEmail()
     .isEmail().withMessage('Must be a valid email')
     .custom(async email => {
+      const User = require('../models/User');
       if (await User.findOne({ email })) {
         throw new Error('Email already in use');
       }
@@ -29,6 +29,7 @@ const registrationChecks = [
     .isLength({ max: 100 }).withMessage('Password too long')
 ];
 
+// Validation chains for login
 const loginChecks = [
   body('email')
     .normalizeEmail()
@@ -37,74 +38,26 @@ const loginChecks = [
     .notEmpty().withMessage('Password cannot be empty')
 ];
 
-// POST /api/auth/register
+/**
+ * @route   POST /api/auth/register
+ * @desc    Validate + register a new user
+ * @access  Public
+ */
 router.post(
   '/register',
   registrationChecks,
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array().map(e => e.msg) });
-    }
-
-    const { firstName, lastName, email, password } = req.body;
-    try {
-      const hash = await bcrypt.hash(password, 10);
-      const user = await new User({ firstName, lastName, email, password: hash }).save();
-
-      const token = jwt.sign(
-        { userId: user._id, email: user.email },
-        process.env.JWT_SECRET,
-        { expiresIn: '1h' }
-      );
-
-      res.status(201).json({
-        token,
-        user: { id: user._id, firstName, lastName, email }
-      });
-    } catch (err) {
-      console.error('Registration error:', err);
-      if (err.code === 11000) {
-        return res.status(409).json({ error: 'Email already registered' });
-      }
-      res.status(500).json({ error: 'Registration failed, please try again later' });
-    }
-  }
+  register
 );
 
-// POST /api/auth/login
+/**
+ * @route   POST /api/auth/login
+ * @desc    Validate + authenticate user, return JWT
+ * @access  Public
+ */
 router.post(
   '/login',
   loginChecks,
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array().map(e => e.msg) });
-    }
-
-    const { email, password } = req.body;
-    try {
-      const user = await User.findOne({ email });
-      if (!user) {
-        return res.status(401).json({ error: 'Invalid credentials' });
-      }
-
-      const match = await bcrypt.compare(password, user.password);
-      if (!match) {
-        return res.status(401).json({ error: 'Invalid credentials' });
-      }
-
-      const token = jwt.sign(
-        { userId: user._id, email: user.email },
-        process.env.JWT_SECRET,
-        { expiresIn: '1h' }
-      );
-      res.json({ token });
-    } catch (err) {
-      console.error('Login error:', err);
-      res.status(500).json({ error: 'Login failed, please try again later' });
-    }
-  }
+  login
 );
 
 module.exports = router;
