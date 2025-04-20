@@ -22,28 +22,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Ensure ESLint config exists
-        run: |
-          if [ ! -f .eslintrc.json ]; then
-          cat << 'EOF' > .eslintrc.json
-          {
-            "root": true,
-            "env": {
-              "node": true,
-              "browser": true,
-              "es2021": true
-            },
-            "extends": ["eslint:recommended"],
-            "ignorePatterns": [
-              "server/controllers/**",
-              "node_modules",
-              "dist",
-              "build"
-            ]
-          }
-          EOF
-          fi
-
       - name: Lint all code
         run: npm run lint
 
