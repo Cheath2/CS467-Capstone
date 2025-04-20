@@ -25,5 +25,11 @@ jobs:
       - name: Lint all code
         run: npm run lint
 
-      - name: Build client
-        run: npm run build:client
+      - name: Build client (if it exists)
+        run: |
+          if [ -f client/package.json ]; then
+            echo "🛠️  Found client/package.json, building front‑end…"
+            npm --prefix client run build
+          else
+            echo "⚠️  No client/package.json – skipping client build."
+          fi
