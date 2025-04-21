@@ -184,7 +184,9 @@
     "is-shared-array-buffer": "^1.0.4",
     "is-stream": "^3.0.0",
     "is-string": "^1.1.1",
-    "is-symbol": "^1.1.1"
+    "is-symbol": "^1.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.13.2"
   },
   "scripts": {
     "start:server": "node server/index.js",
@@ -199,7 +201,9 @@
       "browser": true,
       "es2021": true
     },
-    "extends": ["eslint:recommended"],
+    "extends": [
+      "eslint:recommended"
+    ],
     "ignorePatterns": [
       "server/controllers/**",
       "node_modules",
