@@ -47,9 +47,7 @@ app.get('/api/protected', verifyToken, (req, res) => {
 // ── DATABASE CONNECTION & SERVER STARTUP ───────────────────────────────────────
 mongoose
   .connect(process.env.MONGO_URI, {
-    useNewUrlParser:    true,
-    useUnifiedTopology: true,
-    dbName:             'test'     // ← explicitly use the 'test' database
+    dbName: 'test'     // explicitly use the 'test' database
   })
   .then(() => {
     const PORT = process.env.PORT || 5000;
