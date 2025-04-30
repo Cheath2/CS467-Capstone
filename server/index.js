@@ -11,6 +11,7 @@ const cors       = require('cors');      // Enable CORS
 const authRoutes  = require('./routes/auth');
 const skillRoutes = require('./routes/skills');
 const userRoutes  = require('./routes/user');
+const jobRoutes   = require('./routes/jobRoutes');
 
 // ── JWT auth middleware ───────────────────────────────────────────────────────
 const verifyToken = require('./middleware/verifyToken');
@@ -18,12 +19,8 @@ const verifyToken = require('./middleware/verifyToken');
 const app = express();
 
 // ── GLOBAL MIDDLEWARE ─────────────────────────────────────────────────────────
-// Allow React (or any origin) to talk to this API—adjust origin in production
 app.use(cors());
-
-// Parse incoming JSON requests into req.body
 app.use(express.json());
-
 
 // ── PUBLIC ROUTES ─────────────────────────────────────────────────────────────
 // Health‑check endpoint
@@ -32,17 +29,18 @@ app.get('/', (req, res) => res.send('✅ Job Tracker API is up and running'));
 // Auth routes (register & login)—no token required
 app.use('/api/auth', authRoutes);
 
-
 // ── PROTECTED ROUTES ──────────────────────────────────────────────────────────
-// All routes under /api/skills and /api/user require a valid JWT
+// Skill and user routes require a valid JWT
 app.use('/api/skills', verifyToken, skillRoutes);
 app.use('/api/user',   verifyToken, userRoutes);
+
+// Job routes for CRUD operations—also protected
+app.use('/api/jobs', verifyToken, jobRoutes);
 
 // Example inline protected endpoint
 app.get('/api/protected', verifyToken, (req, res) => {
   res.json({ message: `Hello user ${req.userId}, you have access!` });
 });
-
 
 // ── DATABASE CONNECTION & SERVER STARTUP ───────────────────────────────────────
 mongoose
