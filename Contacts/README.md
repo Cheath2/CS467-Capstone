@@ -22,19 +22,23 @@ All endpoints are **protected** - they require a valid JWT token in the 'Authori
 
 **Create a Contact**
 
-[screenshot]
+<img width="762" alt="Screenshot 2025-04-30 at 5 28 35 PM" src="https://github.com/user-attachments/assets/cd3ccaa9-3012-4da7-9b1f-8483a350411e" />
+
 
 **Get All Contacts**
 
-[screenshot]
+<img width="765" alt="Screenshot 2025-04-30 at 5 29 45 PM" src="https://github.com/user-attachments/assets/1783ae6f-09c6-4dfa-8a51-863b4dbb31a8" />
+
 
 **Update a Contact**
 
-[screenshot]
+<img width="763" alt="Screenshot 2025-04-30 at 5 31 58 PM" src="https://github.com/user-attachments/assets/b54b8ecf-6803-40b3-8ffb-6a9cb0bf3d49" />
+
 
 **Delete a Contact**
 
-[screenshot]
+<img width="760" alt="Screenshot 2025-04-30 at 5 33 26 PM" src="https://github.com/user-attachments/assets/8e00218c-0711-4603-b52e-da740926af0e" />
+
 
 ---
 
@@ -43,7 +47,8 @@ All endpoints are **protected** - they require a valid JWT token in the 'Authori
 1) npm install 
 2) create .env file 
 
- [screenshot]
+   <img width="213" alt="Screenshot 2025-04-30 at 6 10 07 PM" src="https://github.com/user-attachments/assets/d7e54e2f-8e01-44e6-a18d-442c8624abc9" />
+
 
 3) start the server using node server.js or npx nodemon server.js 
 4) Server will run at http://localhost:port
