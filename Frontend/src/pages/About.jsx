@@ -1,6 +1,6 @@
 import { Typography, Box } from '@mui/material';
 
-const Home = () => {
+const About = () => {
     return (
         <Box sx={{
             maxWidth: 'xl',
@@ -10,7 +10,7 @@ const Home = () => {
             py: 4
         }}>
             <Typography variant="h4" sx={{ mb: 2 }}>
-                Welcome to Job Tracker
+                Welcome to Job Tracker ABOUT US PAGE
             </Typography>
             <Typography variant="body1">
                 Track your job applications, interviews, and progress in one place.
@@ -19,4 +19,4 @@ const Home = () => {
     );
 };
 
-export default Home;
+export default About;
