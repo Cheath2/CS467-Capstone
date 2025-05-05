@@ -49,5 +49,4 @@ GitHub Actions automates:
 - `npm ci`
 - `npm run lint`
 
-*Keep it simple and code!*
 
