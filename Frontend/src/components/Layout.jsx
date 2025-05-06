@@ -49,7 +49,7 @@ const Layout = () => {
                         <Button
                             color="inherit"
                             component={Link}
-                            to="/"
+                            to="/about"
                             sx={buttonHoverStyles}
                         >
                             About Us
