@@ -18,6 +18,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { useState } from 'react';
+import { styles } from './JobTracker.styles';
 
 const getStatusColor = (status) => {
   switch (status.toLowerCase()) {
@@ -129,9 +130,9 @@ const JobTracker = () => {
   };
 
   return (
-    <Box sx={{ backgroundColor: '#f7f7f3' }}>
-      <Box sx={{ textAlign: 'center', mb: 6 }}>
-        <Typography variant="h3" fontWeight="bold" gutterBottom sx={{ color: '#4C8285' }}>
+    <Box sx={styles.page}>
+      <Box sx={styles.heroBox}>
+        <Typography variant="h3" fontWeight="bold" gutterBottom sx={styles.heroHeading}>
           Track Your Job Applications
         </Typography>
         <Typography variant="h6" color="text.secondary">
@@ -139,7 +140,7 @@ const JobTracker = () => {
         </Typography>
       </Box>
 
-      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 6 }}>
+      <Box sx={styles.addButtonContainer}>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
@@ -147,43 +148,18 @@ const JobTracker = () => {
             resetForm();
             setOpen(true);
           }}
-          sx={{
-            bgcolor: '#4C8285',
-            px: 4,
-            py: 1.5,
-            fontWeight: 'bold',
-            borderRadius: 3,
-            textTransform: 'none',
-            boxShadow: 3,
-            '&:hover': {
-              bgcolor: '#3a6c6e',
-            },
-          }}
+          sx={styles.addButton}
         >
           Add Job
         </Button>
       </Box>
 
       <Container maxWidth="lg">
-        <Box
-          sx={{
-            backgroundColor: '#e6f0ee',
-            borderRadius: 3,
-            px: 4,
-            py: 6,
-            boxShadow: 1,
-          }}
-        >
+        <Box sx={styles.cardContainer}>
           <Grid container spacing={4}>
             {jobs.map((job, index) => (
               <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-                <Card
-                  sx={{
-                    backgroundColor: getStatusColor(job.status),
-                    borderRadius: 3,
-                    boxShadow: 3,
-                  }}
-                >
+                <Card sx={styles.jobCard(getStatusColor(job.status))}>
                   <CardContent>
                     <Typography variant="subtitle1" fontWeight="bold">
                       {job.company}
@@ -198,7 +174,7 @@ const JobTracker = () => {
                       </span>
                     </Typography>
                   </CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', px: 2, pb: 1 }}>
+                  <Box sx={styles.cardActions}>
                     <IconButton size="small" onClick={() => handleEdit(index)}>
                       <EditIcon fontSize="small" />
                     </IconButton>
@@ -214,10 +190,10 @@ const JobTracker = () => {
       </Container>
 
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm" disableRestoreFocus>
-        <DialogTitle sx={{ fontWeight: 'bold', textAlign: 'center', pt: 3, pb: 3 }}>
+        <DialogTitle sx={styles.dialogTitle}>
           {isEditing ? 'Edit Job' : 'New Job Opportunity'}
         </DialogTitle>
-        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 3, py: 2 }}>
+        <DialogContent sx={styles.dialogContent}>
           <TextField
             label="Company"
             value={company}
@@ -225,7 +201,7 @@ const JobTracker = () => {
             placeholder="e.g. Facebook"
             fullWidth
             variant="outlined"
-            sx={{ mt: 1 }}
+            sx={styles.textFieldMarginTop}
             slotProps={{
               inputLabel: { shrink: true },
               input: { 'aria-label': 'company name' },
@@ -297,11 +273,11 @@ const JobTracker = () => {
             }}
           />
         </DialogContent>
-        <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
-          <Button onClick={() => setOpen(false)} sx={{ bgcolor: '#CFE1E3' }}>
+        <DialogActions sx={styles.dialogActions}>
+          <Button onClick={() => setOpen(false)} sx={styles.cancelButton}>
             Cancel
           </Button>
-          <Button variant="contained" sx={{ bgcolor: '#4C8285' }} onClick={handleSave}>
+          <Button variant="contained" sx={styles.saveButton} onClick={handleSave}>
             Save
           </Button>
         </DialogActions>
