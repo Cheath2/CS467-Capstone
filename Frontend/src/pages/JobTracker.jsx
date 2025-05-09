@@ -2,46 +2,32 @@ import {
   Box,
   Typography,
   Grid,
-  Card,
-  CardContent,
-  IconButton,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  MenuItem,
   Container,
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { useState } from 'react';
 import { styles } from './JobTracker.styles';
-
-const getStatusColor = (status) => {
-  switch (status.toLowerCase()) {
-    case 'active':
-      return '#D0EDD4';
-    case 'reject':
-      return '#FBEAEA';
-    default:
-      return '#E0F2F1';
-  }
-};
+import JobCard from '../components/JobCard';
+import JobDialogForm from '../components/JobDialogForm';
+import JobFilter from '../components/JobFilter';
 
 const JobTracker = () => {
+  // Modal and edit state
   const [open, setOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
 
+  // Filter state for "All", "Active", or "Rejected"
+  const [filter, setFilter] = useState('All');
+
+  // Static list of job applications
   const [jobs, setJobs] = useState([
     {
       company: 'Forbes',
       role: 'Front End Developer',
       date: 'July 2nd 2020',
-      status: 'Reject',
+      status: 'Rejected',
       link: '',
       note: '',
     },
@@ -65,7 +51,7 @@ const JobTracker = () => {
       company: 'Bloomingdale',
       role: 'Software Engineer',
       date: 'May 10th 2020',
-      status: 'Reject',
+      status: 'Rejected',
       link: '',
       note: '',
     },
@@ -79,6 +65,7 @@ const JobTracker = () => {
     },
   ]);
 
+  // Form fields
   const [company, setCompany] = useState('');
   const [role, setRole] = useState('');
   const [link, setLink] = useState('');
@@ -86,6 +73,7 @@ const JobTracker = () => {
   const [status, setStatus] = useState('');
   const [note, setNote] = useState('');
 
+  // Resets form fields and modal/editing state
   const resetForm = () => {
     setCompany('');
     setRole('');
@@ -97,6 +85,7 @@ const JobTracker = () => {
     setEditIndex(null);
   };
 
+  // Save a new job or update an existing one
   const handleSave = () => {
     const newJob = { company, role, link, date, status, note };
 
@@ -112,6 +101,7 @@ const JobTracker = () => {
     setOpen(false);
   };
 
+  // Populate form with existing job for editing
   const handleEdit = (index) => {
     const job = jobs[index];
     setCompany(job.company);
@@ -125,12 +115,14 @@ const JobTracker = () => {
     setOpen(true);
   };
 
+  // Remove job from list
   const handleDelete = (index) => {
     setJobs(jobs.filter((_, i) => i !== index));
   };
 
   return (
     <Box sx={styles.page}>
+      {/* Hero section */}
       <Box sx={styles.heroBox}>
         <Typography variant="h3" fontWeight="bold" gutterBottom sx={styles.heroHeading}>
           Track Your Job Applications
@@ -140,6 +132,7 @@ const JobTracker = () => {
         </Typography>
       </Box>
 
+      {/* Add Job Button */}
       <Box sx={styles.addButtonContainer}>
         <Button
           variant="contained"
@@ -154,134 +147,48 @@ const JobTracker = () => {
         </Button>
       </Box>
 
+      {/* Filter toggle (All / Active / Rejected) */}
+      <JobFilter currentFilter={filter} onChange={setFilter} />
+
+      {/* Job cards list */}
       <Container maxWidth="lg">
         <Box sx={styles.cardContainer}>
           <Grid container spacing={4}>
-            {jobs.map((job, index) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-                <Card sx={styles.jobCard(getStatusColor(job.status))}>
-                  <CardContent>
-                    <Typography variant="subtitle1" fontWeight="bold">
-                      {job.company}
-                    </Typography>
-                    <Typography variant="body2">- {job.role}</Typography>
-                    <Typography variant="body2">- {job.link || 'Link'}</Typography>
-                    <Typography variant="body2">- Date: {job.date}</Typography>
-                    <Typography variant="body2">
-                      - Status:{' '}
-                      <span style={{ color: job.status === 'Reject' ? 'red' : 'green' }}>
-                        {job.status}
-                      </span>
-                    </Typography>
-                  </CardContent>
-                  <Box sx={styles.cardActions}>
-                    <IconButton size="small" onClick={() => handleEdit(index)}>
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton size="small" onClick={() => handleDelete(index)}>
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
-                </Card>
-              </Grid>
-            ))}
+            {jobs
+              .filter((job) => filter === 'All' || job.status === filter)
+              .map((job, index) => (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+                  <JobCard
+                    job={job}
+                    index={index}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                  />
+                </Grid>
+              ))}
           </Grid>
         </Box>
       </Container>
 
-      <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm" disableRestoreFocus>
-        <DialogTitle sx={styles.dialogTitle}>
-          {isEditing ? 'Edit Job' : 'New Job Opportunity'}
-        </DialogTitle>
-        <DialogContent sx={styles.dialogContent}>
-          <TextField
-            label="Company"
-            value={company}
-            onChange={(e) => setCompany(e.target.value)}
-            placeholder="e.g. Facebook"
-            fullWidth
-            variant="outlined"
-            sx={styles.textFieldMarginTop}
-            slotProps={{
-              inputLabel: { shrink: true },
-              input: { 'aria-label': 'company name' },
-            }}
-          />
-          <TextField
-            label="Role"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            placeholder="e.g. Software Engineer"
-            fullWidth
-            variant="outlined"
-            slotProps={{
-              inputLabel: { shrink: true },
-              input: { 'aria-label': 'role' },
-            }}
-          />
-          <TextField
-            label="Link"
-            value={link}
-            onChange={(e) => setLink(e.target.value)}
-            placeholder="http://www.example.com"
-            fullWidth
-            variant="outlined"
-            slotProps={{
-              inputLabel: { shrink: true },
-              input: { 'aria-label': 'job link' },
-            }}
-          />
-          <TextField
-            label="Date"
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            fullWidth
-            variant="outlined"
-            slotProps={{
-              inputLabel: { shrink: true },
-              input: { 'aria-label': 'application date' },
-            }}
-          />
-          <TextField
-            select
-            label="Status"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            fullWidth
-            variant="outlined"
-            slotProps={{
-              inputLabel: { shrink: true },
-              input: { 'aria-label': 'application status' },
-            }}
-          >
-            <MenuItem value="Active">Active</MenuItem>
-            <MenuItem value="Reject">Reject</MenuItem>
-          </TextField>
-          <TextField
-            label="Note"
-            multiline
-            rows={3}
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            helperText={`${note.length}/100`}
-            fullWidth
-            variant="outlined"
-            slotProps={{
-              inputLabel: { shrink: true },
-              input: { maxLength: 100, 'aria-label': 'note' },
-            }}
-          />
-        </DialogContent>
-        <DialogActions sx={styles.dialogActions}>
-          <Button onClick={() => setOpen(false)} sx={styles.cancelButton}>
-            Cancel
-          </Button>
-          <Button variant="contained" sx={styles.saveButton} onClick={handleSave}>
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {/* Modal for adding/editing a job */}
+      <JobDialogForm
+        open={open}
+        isEditing={isEditing}
+        company={company}
+        role={role}
+        link={link}
+        date={date}
+        status={status}
+        note={note}
+        setCompany={setCompany}
+        setRole={setRole}
+        setLink={setLink}
+        setDate={setDate}
+        setStatus={setStatus}
+        setNote={setNote}
+        onClose={() => setOpen(false)}
+        onSave={handleSave}
+      />
     </Box>
   );
 };

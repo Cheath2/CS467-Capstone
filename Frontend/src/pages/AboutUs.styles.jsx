@@ -1,5 +1,3 @@
-// AboutUs.styles.jsx
-
 export const colors = {
   accentGreen: '#4C8285',
   backgroundBeige: '#f7f7f3',

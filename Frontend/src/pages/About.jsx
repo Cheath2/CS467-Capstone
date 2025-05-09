@@ -1,4 +1,3 @@
-// About.tsx
 import {
   Typography,
   Box,
@@ -19,6 +18,7 @@ import { Link } from 'react-router-dom';
 import { styles, colors } from './AboutUs.styles';
 
 const About = () => {
+  // Feature cards displayed under "Why Use Our App" section
   const features = [
     {
       icon: <WorkOutlineIcon fontSize="large" sx={{ color: colors.accentGreen }} />,

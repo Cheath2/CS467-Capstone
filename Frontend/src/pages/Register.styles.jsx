@@ -1,5 +1,3 @@
-// Register.styles.jsx
-
 export const colors = {
     accentGreen: '#4C8285',
     hoverGreen: '#3a6a6d',

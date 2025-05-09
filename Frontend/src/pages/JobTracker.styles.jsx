@@ -1,4 +1,13 @@
-// JobTracker.styles.jsx
+export const getStatusColor = (status) => {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return '#D0EDD4';
+      case 'rejected':
+        return '#FBEAEA';
+      default:
+        return '#E0F2F1';
+    }
+  };
 
 export const colors = {
     backgroundBeige: '#f7f7f3',
@@ -79,5 +88,38 @@ export const colors = {
     saveButton: {
       bgcolor: colors.accentGreen,
     },
+    filterContainer: {
+        textAlign: 'right',
+        mb: 4,
+        mr: 25,
+      },
+      filterButton: {
+        color: '#4C8285',
+        borderColor: '#4C8285',
+        fontWeight: 'bold',
+        textTransform: 'none',
+        '&.Mui-selected, &.MuiButton-contained': {
+          backgroundColor: '#4C8285',
+          color: '#fff',
+          '&:hover': {
+            backgroundColor: '#3a6c6d',
+          },
+        },
+      },
+      datePicker: {
+        mt: 1,
+        '& .MuiInputBase-root': {
+          backgroundColor: '#fff',
+        },
+        '& .MuiOutlinedInput-notchedOutline': {
+          borderColor: '#4C8285',
+        },
+        '&:hover .MuiOutlinedInput-notchedOutline': {
+          borderColor: '#3a6c6d',
+        },
+        '& .Mui-focused .MuiOutlinedInput-notchedOutline': {
+          borderColor: '#3a6c6d',
+        },
+      },
   };
   
