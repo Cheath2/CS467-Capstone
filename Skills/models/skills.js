@@ -13,7 +13,12 @@ const skillSchema = new mongoose.Schema({
   linkedJobs: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Job',
-  }]
-});
+  }],
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required:true,
+  }
+}, {timestamps: true});
 
 module.exports = mongoose.model('Skill', skillSchema);
