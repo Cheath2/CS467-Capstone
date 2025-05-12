@@ -1,6 +1,7 @@
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
 import PageWrapper from './PageWrapper';
+import api from '../api/apiClient'; // ← import API client for logout
 
 // Enhanced hover styles with smooth transition
 const buttonHoverStyles = {
@@ -13,6 +14,21 @@ const buttonHoverStyles = {
 };
 
 const Layout = () => {
+    const navigate = useNavigate(); // ← navigation hook for redirect
+    const token = localStorage.getItem('accessToken'); // ← check if user is logged in
+
+    // Sign-out handler
+    const handleLogout = async () => {
+        try {
+            await api.post('/auth/logout'); // call logout endpoint
+        } catch (err) {
+            console.error('Logout error:', err);
+        }
+        localStorage.removeItem('accessToken'); // clear stored token
+        delete api.defaults.headers.common['Authorization']; // remove auth header
+        navigate('/signin'); // redirect to Sign In
+    };
+
     return (
         <>
             <AppBar position="static" sx={{
@@ -78,22 +94,34 @@ const Layout = () => {
                         >
                             Contacts
                         </Button>
-                        <Button
-                            color="inherit"
-                            component={Link}
-                            to="/signin"
-                            sx={buttonHoverStyles}
-                        >
-                            Sign In
-                        </Button>
-                        <Button
-                            color="inherit"
-                            component={Link}
-                            to="/register"
-                            sx={buttonHoverStyles}
-                        >
-                            Register
-                        </Button>
+                        {!token ? (
+                            <>  {/* show Sign In/Register when not logged in */}
+                                <Button
+                                    color="inherit"
+                                    component={Link}
+                                    to="/signin"
+                                    sx={buttonHoverStyles}
+                                >
+                                    Sign In
+                                </Button>
+                                <Button
+                                    color="inherit"
+                                    component={Link}
+                                    to="/register"
+                                    sx={buttonHoverStyles}
+                                >
+                                    Register
+                                </Button>
+                            </>
+                        ) : (
+                            <Button
+                                color="inherit"
+                                onClick={handleLogout} // ← attach logout handler
+                                sx={buttonHoverStyles}
+                            >
+                                Sign Out
+                            </Button>
+                        )}
                     </Box>
                 </Toolbar>
             </AppBar>
