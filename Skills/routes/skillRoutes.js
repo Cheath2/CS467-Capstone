@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Skill = require('../models/Skill');
+const Skill = require('../models/Skills');
 const verifyToken = require('../middleware/verifyToken');
 
 // @route   POST /api/yourskills
