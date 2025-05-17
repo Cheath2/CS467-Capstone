@@ -5,8 +5,7 @@ const mongoose = require('mongoose');
 const skillSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
-    unique: true
+    required: true
   },
   level: {
     type: String,
@@ -15,7 +14,15 @@ const skillSchema = new mongoose.Schema({
   },
   linkedJobs: [
     { type: mongoose.Schema.Types.ObjectId, ref: 'Job' }
-  ]
+  ],
+  user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required:true,
+    }
 }, { timestamps: true });
+
+// Compound index: unique skill name per user
+skillSchema.index({ user: 1, name: 1 }, { unique: true });
 
 module.exports = mongoose.model('Skill', skillSchema);

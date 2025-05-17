@@ -9,9 +9,11 @@ const cors       = require('cors');      // Enable CORS
 
 // ── Import route modules (CommonJS) ───────────────────────────────────────────
 const authRoutes  = require('./routes/auth');
-const skillRoutes = require('./routes/skills');
+const skillRoutes = require('./routes/skillRoutes');
 const userRoutes  = require('./routes/user');
 const jobRoutes   = require('./routes/jobRoutes');
+const contactRoutes = require('./routes/contactRoutes');
+
 
 // ── JWT auth middleware ───────────────────────────────────────────────────────
 const verifyToken = require('./middleware/verifyToken');
@@ -36,6 +38,9 @@ app.use('/api/user',   verifyToken, userRoutes);
 
 // Job routes for CRUD operations—also protected
 app.use('/api/jobs', verifyToken, jobRoutes);
+
+//Contact Routes for CRUD operations also protected
+app.use('/api/contacts', verifyToken, contactRoutes);
 
 // Example inline protected endpoint
 app.get('/api/protected', verifyToken, (req, res) => {
