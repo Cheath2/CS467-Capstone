@@ -11,6 +11,7 @@ const jobSchema = new mongoose.Schema({
   status:   { type: String, enum: ['applied','interviewing','offer','rejected'], default: 'applied' },
   notes:    { type: String },
   deadline: { type: Date },
+  skills: [{ type: String }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Job', jobSchema);
