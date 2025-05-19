@@ -116,7 +116,17 @@ const Signin = () => {
                 </Link>
             </Typography>
         </Box>
+  
+        <Divider sx={styles.divider} />
+  
+        <Typography variant="body2" align="center">
+          Don't have an account?{' '}
+          <Link href="/register" underline="hover" sx={styles.link}>
+            Register
+          </Link>
+        </Typography>
+      </Box>
     );
-};
-
-export default Signin;
+  };
+  
+  export default Signin;
