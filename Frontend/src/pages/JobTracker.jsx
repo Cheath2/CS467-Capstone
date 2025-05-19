@@ -4,9 +4,20 @@ import {
   Box,
   Typography,
   Grid,
+  Card,
+  CardContent,
+  IconButton,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  MenuItem,
   Container,
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import api from '../api/apiClient';    // ← Import Axios instance for API calls
 
@@ -78,7 +89,6 @@ const JobTracker = () => {
     }
   };
 
-
   // Open edit dialog for existing job
   const handleEdit = (index) => {
     const job = jobs[index];
@@ -107,10 +117,9 @@ const JobTracker = () => {
   };
 
   return (
-    <Box sx={styles.page}>
-      {/* Hero section */}
-      <Box sx={styles.heroBox}>
-        <Typography variant="h3" fontWeight="bold" gutterBottom sx={styles.heroHeading}>
+    <Box sx={{ backgroundColor: '#f7f7f3' }}>
+      <Box sx={{ textAlign: 'center', mb: 6 }}>
+        <Typography variant="h3" fontWeight="bold" gutterBottom sx={{ color: '#4C8285' }}>
           Track Your Job Applications
         </Typography>
         <Typography variant="h6" color="text.secondary">
@@ -118,12 +127,10 @@ const JobTracker = () => {
         </Typography>
       </Box>
 
-      {/* Add Job Button */}
-      <Box sx={styles.addButtonContainer}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 6 }}>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
-
           onClick={() => { resetForm(); setOpen(true); }}
           sx={{
             bgcolor: '#4C8285',
@@ -139,34 +146,28 @@ const JobTracker = () => {
         </Button>
       </Box>
 
-      {/* Filter toggle (All / Active / Rejected) */}
-      <JobFilter currentFilter={filter} onChange={setFilter} />
-
-      {/* Job cards list */}
       <Container maxWidth="lg">
         <Box sx={{ backgroundColor: '#e6f0ee', borderRadius: 3, px: 4, py: 6, boxShadow: 1 }}>
           <Grid container spacing={4}>
             {jobs.map((job, index) => (
-              .filter((job) => filter === 'All' || job.status === filter)
-              .map((job, index) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-                  <Card sx={{ backgroundColor: getStatusColor(job.status), borderRadius: 3, boxShadow: 3 }}>
-                    <CardContent>
-                      <Typography variant="subtitle1" fontWeight="bold">{job.company}</Typography>
-                      <Typography variant="body2">- {job.role}</Typography>
-                      <Typography variant="body2">- {job.link || 'Link'}</Typography>
-                      <Typography variant="body2">- Date: {job.date}</Typography>
-                      <Typography variant="body2">
-                        - Status: <span style={{ color: job.status === 'Reject' ? 'red' : 'green' }}>{job.status}</span>
-                      </Typography>
-                    </CardContent>
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', px: 2, pb: 1 }}>
-                      <IconButton size="small" onClick={() => handleEdit(index)}><EditIcon fontSize="small"/></IconButton>
-                      <IconButton size="small" onClick={() => handleDelete(index)}><DeleteIcon fontSize="small"/></IconButton>
-                    </Box>
-                  </Card>
-                </Grid>
-              ))}
+              <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+                <Card sx={{ backgroundColor: getStatusColor(job.status), borderRadius: 3, boxShadow: 3 }}>
+                  <CardContent>
+                    <Typography variant="subtitle1" fontWeight="bold">{job.company}</Typography>
+                    <Typography variant="body2">- {job.role}</Typography>
+                    <Typography variant="body2">- {job.link || 'Link'}</Typography>
+                    <Typography variant="body2">- Date: {job.date}</Typography>
+                    <Typography variant="body2">
+                      - Status: <span style={{ color: job.status === 'Reject' ? 'red' : 'green' }}>{job.status}</span>
+                    </Typography>
+                  </CardContent>
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', px: 2, pb: 1 }}>
+                    <IconButton size="small" onClick={() => handleEdit(index)}><EditIcon fontSize="small"/></IconButton>
+                    <IconButton size="small" onClick={() => handleDelete(index)}><DeleteIcon fontSize="small"/></IconButton>
+                  </Box>
+                </Card>
+              </Grid>
+            ))}
           </Grid>
         </Box>
       </Container>
