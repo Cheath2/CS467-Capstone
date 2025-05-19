@@ -6,6 +6,7 @@ require('dotenv').config();
 const express    = require('express');   // Express framework
 const mongoose   = require('mongoose');  // MongoDB ODM
 const cors       = require('cors');      // Enable CORS
+const cookieParser = require('cookie-parser'); // ← Import for parsing cookies
 
 // ── Import route modules (CommonJS) ───────────────────────────────────────────
 const authRoutes  = require('./routes/auth');
@@ -19,8 +20,12 @@ const verifyToken = require('./middleware/verifyToken');
 const app = express();
 
 // ── GLOBAL MIDDLEWARE ─────────────────────────────────────────────────────────
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+  origin: 'http://localhost:3000',    // ← your client URL
+  credentials: true                   // ← allow cookies to be sent
+}));
+app.use(express.json());               // parse JSON bodies
+app.use(cookieParser());               // ← parse cookies on incoming requests
 
 // ── PUBLIC ROUTES ─────────────────────────────────────────────────────────────
 // Health‑check endpoint
