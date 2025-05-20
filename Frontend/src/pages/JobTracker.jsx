@@ -4,60 +4,48 @@ import {
   Box,
   Typography,
   Grid,
-  Card,
-  CardContent,
-  IconButton,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   TextField,
   MenuItem,
   Container,
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import api from '../api/apiClient';    // ← Import Axios instance for API calls
-
-const getStatusColor = (status) => {
-  switch (status.toLowerCase()) {
-    case 'active':  return '#D0EDD4';
-    case 'reject':  return '#FBEAEA';
-    default:        return '#E0F2F1';
-  }
-};
+import api from '../api/apiClient';
+import JobCard from '../components/JobCard';
+import JobDialog from '../components/JobDialog';
 
 const JobTracker = () => {
-  // Dialog & edit state
-  const [open, setOpen]         = useState(false);
+  const [open, setOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
 
-  // Jobs and form fields state
-  const [jobs, setJobs]         = useState([]);
-  const [company, setCompany]   = useState('');
-  const [role, setRole]         = useState('');
-  const [link, setLink]         = useState('');
-  const [date, setDate]         = useState('');
-  const [status, setStatus]     = useState('');
-  const [note, setNote]         = useState('');
-  const [error, setError]       = useState('');
+  const [jobs, setJobs] = useState([]);
+  const [company, setCompany] = useState('');
+  const [role, setRole] = useState('');
+  const [link, setLink] = useState('');
+  const [date, setDate] = useState(null);
+  const [status, setStatus] = useState('');
+  const [note, setNote] = useState('');
+  const [error, setError] = useState('');
 
-  // Clear form and edit flags
+  const [filterStatus, setFilterStatus] = useState('All');
+
   const resetForm = () => {
-    setCompany(''); setRole(''); setLink('');
-    setDate(''); setStatus(''); setNote('');
-    setIsEditing(false); setEditIndex(null);
+    setCompany('');
+    setRole('');
+    setLink('');
+    setDate(null);
+    setStatus('');
+    setNote('');
+    setIsEditing(false);
+    setEditIndex(null);
     setError('');
   };
 
-  // Load jobs on mount
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const { data } = await api.get('/jobs'); // GET /api/jobs
+        const { data } = await api.get('/jobs');
         setJobs(data);
       } catch (err) {
         console.error('Error loading jobs:', err);
@@ -66,19 +54,21 @@ const JobTracker = () => {
     fetchJobs();
   }, []);
 
-  // Save or update job via API
   const handleSave = async () => {
-    const jobPayload = { company, role, link, date, status, note };
+    const normalizedStatus = status.toLowerCase() === 'reject' ? 'Rejected' : status;
+
+    const jobPayload = { company, role, link, date, status: normalizedStatus, note };
+
     try {
       if (isEditing && editIndex !== null) {
         const jobToEdit = jobs[editIndex];
-        const res = await api.put(`/jobs/${jobToEdit._id}`, jobPayload); // PUT /api/jobs/:id
+        const res = await api.put(`/jobs/${jobToEdit._id}`, jobPayload);
         const updated = res.data;
         const updatedJobs = [...jobs];
         updatedJobs[editIndex] = updated;
         setJobs(updatedJobs);
       } else {
-        const res = await api.post('/jobs', jobPayload); // POST /api/jobs
+        const res = await api.post('/jobs', jobPayload);
         setJobs([res.data, ...jobs]);
       }
       resetForm();
@@ -89,7 +79,6 @@ const JobTracker = () => {
     }
   };
 
-  // Open edit dialog for existing job
   const handleEdit = (index) => {
     const job = jobs[index];
     setCompany(job.company);
@@ -104,11 +93,10 @@ const JobTracker = () => {
     setOpen(true);
   };
 
-  // Delete job via API
   const handleDelete = async (index) => {
     try {
       const job = jobs[index];
-      await api.delete(`/jobs/${job._id}`); // DELETE /api/jobs/:id
+      await api.delete(`/jobs/${job._id}`);
       setJobs(jobs.filter((_, i) => i !== index));
     } catch (err) {
       console.error("Couldn't delete job:", err);
@@ -131,15 +119,19 @@ const JobTracker = () => {
         <Button
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={() => { resetForm(); setOpen(true); }}
+          onClick={() => {
+            resetForm();
+            setOpen(true);
+          }}
           sx={{
             bgcolor: '#4C8285',
-            px: 4, py: 1.5,
+            px: 4,
+            py: 1.5,
             fontWeight: 'bold',
             borderRadius: 3,
             textTransform: 'none',
             boxShadow: 3,
-            '&:hover': { bgcolor: '#3a6c6e' }
+            '&:hover': { bgcolor: '#3a6c6e' },
           }}
         >
           Add Job
@@ -148,51 +140,81 @@ const JobTracker = () => {
 
       <Container maxWidth="lg">
         <Box sx={{ backgroundColor: '#e6f0ee', borderRadius: 3, px: 4, py: 6, boxShadow: 1 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
+            <TextField
+              select
+              label="Status"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              size="small"
+              variant="outlined"
+              sx={{
+                width: 200,
+                borderRadius: 3,
+                fontWeight: 'bold',
+                px: 2,
+                pl: 1,
+                py: 1,
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: '#3a6c6e',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  borderRadius: 3,
+                  '& fieldset': { border: 'none' },
+                  '&:hover': { backgroundColor: '#3a6c6e' },
+                },
+                '& .MuiInputLabel-root': {
+                  color: '#3a6c6e',
+                  fontWeight: 'bold',
+                  '&.Mui-focused': {
+                    color: '#3a6c6e',
+                  },
+                },
+                '& .MuiSvgIcon-root': {
+                  color: 'white',
+                },
+              }}
+            >
+              <MenuItem value="All">All</MenuItem>
+              <MenuItem value="Active">Active</MenuItem>
+              <MenuItem value="Rejected">Rejected</MenuItem>
+            </TextField>
+          </Box>
+
           <Grid container spacing={4}>
-            {jobs.map((job, index) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-                <Card sx={{ backgroundColor: getStatusColor(job.status), borderRadius: 3, boxShadow: 3 }}>
-                  <CardContent>
-                    <Typography variant="subtitle1" fontWeight="bold">{job.company}</Typography>
-                    <Typography variant="body2">- {job.role}</Typography>
-                    <Typography variant="body2">- {job.link || 'Link'}</Typography>
-                    <Typography variant="body2">- Date: {job.date}</Typography>
-                    <Typography variant="body2">
-                      - Status: <span style={{ color: job.status === 'Reject' ? 'red' : 'green' }}>{job.status}</span>
-                    </Typography>
-                  </CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', px: 2, pb: 1 }}>
-                    <IconButton size="small" onClick={() => handleEdit(index)}><EditIcon fontSize="small"/></IconButton>
-                    <IconButton size="small" onClick={() => handleDelete(index)}><DeleteIcon fontSize="small"/></IconButton>
-                  </Box>
-                </Card>
-              </Grid>
-            ))}
+            {jobs
+              .filter((job) => {
+                if (filterStatus === 'All') return true;
+                return job.status.toLowerCase() === filterStatus.toLowerCase();
+              })
+              .map((job, index) => (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+                  <JobCard job={job} index={index} onEdit={handleEdit} onDelete={handleDelete} />
+                </Grid>
+              ))}
           </Grid>
         </Box>
       </Container>
 
-      <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm" disableRestoreFocus>
-        <DialogTitle sx={{ fontWeight: 'bold', textAlign: 'center', pt: 3, pb: 3 }}>
-          {isEditing ? 'Edit Job' : 'New Job Opportunity'}
-        </DialogTitle>
-        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 3, py: 2 }}>
-          <TextField label="Company" value={company} onChange={(e) => setCompany(e.target.value)} placeholder="e.g. Facebook" fullWidth variant="outlined" sx={{ mt: 1 }} slotProps={{ inputLabel:{ shrink:true }, input:{ 'aria-label':'company name' } }} />
-          <TextField label="Role"    value={role}    onChange={(e) => setRole(e.target.value)}    placeholder="e.g. Software Engineer" fullWidth variant="outlined" slotProps={{ inputLabel:{ shrink:true }, input:{ 'aria-label':'role' } }} />
-          <TextField label="Link"    value={link}    onChange={(e) => setLink(e.target.value)}    placeholder="http://www.example.com" fullWidth variant="outlined" slotProps={{ inputLabel:{ shrink:true }, input:{ 'aria-label':'job link' } }} />
-          <TextField label="Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} fullWidth variant="outlined" slotProps={{ inputLabel:{ shrink:true }, input:{ 'aria-label':'application date' } }} />
-          <TextField select label="Status" value={status} onChange={(e) => setStatus(e.target.value)} fullWidth variant="outlined" slotProps={{ inputLabel:{ shrink:true }, input:{ 'aria-label':'application status' } }}>
-            <MenuItem value="Active">Active</MenuItem>
-            <MenuItem value="Reject">Reject</MenuItem>
-          </TextField>
-          <TextField label="Note" multiline rows={3} value={note} onChange={(e) => setNote(e.target.value)} helperText={`${note.length}/100`} fullWidth variant="outlined" slotProps={{ inputLabel:{ shrink:true }, input:{ maxLength:100, 'aria-label':'note' } }} />
-          {error && <Typography color="error" align="center">{error}</Typography>}
-        </DialogContent>
-        <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
-          <Button onClick={() => setOpen(false)} sx={{ bgcolor: '#CFE1E3' }}>Cancel</Button>
-          <Button variant="contained" sx={{ bgcolor: '#4C8285' }} onClick={handleSave}>Save</Button>
-        </DialogActions>
-      </Dialog>
+      <JobDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        onSave={handleSave}
+        isEditing={isEditing}
+        company={company}
+        setCompany={setCompany}
+        role={role}
+        setRole={setRole}
+        link={link}
+        setLink={setLink}
+        date={date}
+        setDate={setDate}
+        status={status}
+        setStatus={setStatus}
+        note={note}
+        setNote={setNote}
+        error={error}
+      />
     </Box>
   );
 };
