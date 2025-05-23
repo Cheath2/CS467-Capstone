@@ -55,9 +55,14 @@ const JobTracker = () => {
   }, []);
 
   const handleSave = async () => {
-    const normalizedStatus = status.toLowerCase() === 'reject' ? 'Rejected' : status;
-
-    const jobPayload = { company, role, link, date, status: normalizedStatus, note };
+    const jobPayload = {
+      company,
+      role, // backend now expects 'role'
+      link,
+      date: date ? new Date(date).toISOString() : null,
+      status: status.toLowerCase(), // ensure lowercase to match enum
+      note
+    };
 
     try {
       if (isEditing && editIndex !== null) {
@@ -74,7 +79,7 @@ const JobTracker = () => {
       resetForm();
       setOpen(false);
     } catch (err) {
-      console.error("Couldn't save job:", err);
+      console.error("Couldn't save job:", err.response?.data || err.message);
       setError('Failed to save job');
     }
   };
