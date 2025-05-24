@@ -37,6 +37,7 @@ const Contacts = () => {
     // Add new contact via API
     const handleAddContact = async () => {
       if (!newContact.name || !newContact.email) return;
+      console.log('📤 Submitting new contact:', newContact); // 🔍 Add this line
       try {
         const { data: saved } = await api.post('/contacts', newContact); // POST /api/contacts
         setContacts([...contacts, saved]);                         // update UI
@@ -133,7 +134,7 @@ const Contacts = () => {
                                 <IconButton
                                     edge="end"
                                     aria-label="delete"
-                                    onClick={() => handleDeleteContact(index)}
+                                    onClick={() => handleDeleteContact(contact._id)}
                                 >
                                     <Delete sx={{ color: '#4C8285' }} />
                                 </IconButton>

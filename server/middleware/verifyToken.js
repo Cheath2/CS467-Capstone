@@ -1,5 +1,4 @@
 // server/middleware/verifyToken.js
-
 const jwt = require('jsonwebtoken');
 
 module.exports = function verifyToken(req, res, next) {
@@ -11,8 +10,11 @@ module.exports = function verifyToken(req, res, next) {
   const token = authHeader.split(' ')[1];
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // 👉 Make sure this is setting req.userId, not req.user
+
+    // ✅ Dual compatibility
     req.userId = decoded.userId;
+    req.user = { id: decoded.userId };
+
     next();
   } catch (err) {
     console.error('JWT error:', err);
