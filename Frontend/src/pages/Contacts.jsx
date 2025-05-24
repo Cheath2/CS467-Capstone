@@ -19,6 +19,9 @@ const Contacts = () => {
     const [contacts, setContacts] = useState([]);
     const [newContact, setNewContact] = useState({ name: '', email: '', phone: '' });
     const [error, setError] = useState('');
+    const [editableIndex, setEditableIndex] = useState(null);
+    const [editContact, setEditContact] = useState({ name: '', email: '', phone: '' });
+
   
     // Fetch persisted contacts on component mount
     useEffect(() => {

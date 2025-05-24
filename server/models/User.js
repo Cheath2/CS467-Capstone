@@ -9,6 +9,11 @@ const userSchema = new mongoose.Schema({
   // Optional reference to related skills
   skills:    [{ type: mongoose.Schema.Types.ObjectId, ref: 'Skill' }],
 
+  // Optional profile fields
+  phone:      { type: String },
+  bio:        { type: String },
+  profileImage: { type: String }, // Could be base64 or a URL
+
   // Fields for token-based session handling
   refreshToken:           { type: String },
   refreshTokenExpiresAt:  { type: Date }

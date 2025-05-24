@@ -12,30 +12,55 @@ import api from '../api/apiClient';
 const Profile = () => {
   const [profileImage, setProfileImage] = useState(null);
   const [user, setUser] = useState(null);
+  const [editableUser, setEditableUser] = useState(null);
   const fileInputRef = useRef();
 
   useEffect(() => {
     api.get('/user/me')
-      .then(res => setUser(res.data))
+      .then(res => {
+        setUser(res.data);
+        setEditableUser(res.data);
+        if (res.data.profileImage) {
+          setProfileImage(`http://localhost:5000${res.data.profileImage}`);
+        }
+      })
       .catch(err => console.error('Error loading profile:', err.response?.data || err));
   }, []);
 
-  const handleFileChange = (event) => {
+  const handleFileChange = async (event) => {
     const file = event.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (e) => setProfileImage(e.target.result);
-      reader.readAsDataURL(file);
+    if (!file || !file.type.startsWith('image/')) return;
 
-      // Optional upload logic
-      // const formData = new FormData();
-      // formData.append('profileImage', file);
-      // await api.post('/api/upload', formData);
+    const formData = new FormData();
+    formData.append('profileImage', file); // key must match multer.single()
+
+    try {
+      const res = await api.post('/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      const imageUrl = res.data.imageUrl;
+      setProfileImage(`http://localhost:5000${imageUrl}`);
+      setEditableUser(prev => ({ ...prev, profileImage: imageUrl }));
+    } catch (err) {
+      console.error('Image upload failed:', err);
+      alert('Image upload failed');
     }
   };
 
   const triggerFileInput = () => {
     fileInputRef.current.click();
+  };
+
+  const handleUpdateProfile = async () => {
+    try {
+      await api.put('/user/me', editableUser);
+      setUser(editableUser);
+      alert('✅ Profile updated');
+    } catch (err) {
+      console.error('❌ Update failed:', err);
+      alert('Failed to update profile');
+    }
   };
 
   return (
@@ -55,7 +80,7 @@ const Profile = () => {
 
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
         <Avatar
-          src={profileImage}
+          src={profileImage || ''}
           sx={{
             width: 100,
             height: 100,
@@ -64,7 +89,7 @@ const Profile = () => {
             fontSize: '2.5rem'
           }}
         >
-          {!profileImage && (user?.firstName?.[0] || 'U')}
+          {!profileImage && (editableUser?.firstName?.[0] || 'U')}
         </Avatar>
         <input
           type="file"
@@ -84,7 +109,8 @@ const Profile = () => {
             fullWidth
             label="First Name"
             variant="outlined"
-            value={user?.firstName || ''}
+            value={editableUser?.firstName || ''}
+            onChange={(e) => setEditableUser({ ...editableUser, firstName: e.target.value })}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -92,7 +118,8 @@ const Profile = () => {
             fullWidth
             label="Last Name"
             variant="outlined"
-            value={user?.lastName || ''}
+            value={editableUser?.lastName || ''}
+            onChange={(e) => setEditableUser({ ...editableUser, lastName: e.target.value })}
           />
         </Grid>
         <Grid item xs={12}>
@@ -101,7 +128,8 @@ const Profile = () => {
             label="Email"
             type="email"
             variant="outlined"
-            value={user?.email || ''}
+            value={editableUser?.email || ''}
+            onChange={(e) => setEditableUser({ ...editableUser, email: e.target.value })}
           />
         </Grid>
         <Grid item xs={12}>
@@ -109,7 +137,8 @@ const Profile = () => {
             fullWidth
             label="Phone"
             variant="outlined"
-            value={user?.phone || ''} // Only if you plan to support this field in your schema
+            value={editableUser?.phone || ''}
+            onChange={(e) => setEditableUser({ ...editableUser, phone: e.target.value })}
           />
         </Grid>
         <Grid item xs={12}>
@@ -119,13 +148,15 @@ const Profile = () => {
             variant="outlined"
             multiline
             rows={4}
-            value={user?.bio || ''}
+            value={editableUser?.bio || ''}
+            onChange={(e) => setEditableUser({ ...editableUser, bio: e.target.value })}
           />
         </Grid>
         <Grid item xs={12}>
           <Button
             fullWidth
             variant="contained"
+            onClick={handleUpdateProfile}
             sx={{
               py: 1.5,
               mt: 2,

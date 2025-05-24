@@ -1,8 +1,6 @@
-// server/index.js
-
 // ── Load environment variables from server/.env ───────────────────────────────
 require('dotenv').config();
-
+const uploadRoutes = require('./routes/upload');
 const express    = require('express');   // Express framework
 const mongoose   = require('mongoose');  // MongoDB ODM
 const cors       = require('cors');      // Enable CORS
@@ -15,7 +13,6 @@ const userRoutes  = require('./routes/user');
 const jobRoutes   = require('./routes/jobRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 
-
 // ── JWT auth middleware ───────────────────────────────────────────────────────
 const verifyToken = require('./middleware/verifyToken');
 
@@ -23,31 +20,31 @@ const app = express();
 
 // ── GLOBAL MIDDLEWARE ─────────────────────────────────────────────────────────
 app.use(cors({
-  origin: 'http://localhost:3000',    // ← your client URL
-  credentials: true                   // ← allow cookies to be sent
+  origin: 'http://localhost:3000',
+  credentials: true
 }));
-app.use(express.json());               // parse JSON bodies
-app.use(cookieParser());               // ← parse cookies on incoming requests
+
+// ✅ Increased body size limit for uploads
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+app.use(cookieParser());
+
+const path = require('path'); // ← Add to your top-level imports if not already present
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.use('/api/upload', uploadRoutes);               // Handle image upload requests
 
 // ── PUBLIC ROUTES ─────────────────────────────────────────────────────────────
-// Health‑check endpoint
 app.get('/', (req, res) => res.send('✅ Job Tracker API is up and running'));
-
-// Auth routes (register & login)—no token required
 app.use('/api/auth', authRoutes);
 
 // ── PROTECTED ROUTES ──────────────────────────────────────────────────────────
-// Skill and user routes require a valid JWT
 app.use('/api/skills', verifyToken, skillRoutes);
 app.use('/api/user',   verifyToken, userRoutes);
-
-// Job routes for CRUD operations—also protected
-app.use('/api/jobs', verifyToken, jobRoutes);
-
-//Contact Routes for CRUD operations also protected
+app.use('/api/jobs',   verifyToken, jobRoutes);
 app.use('/api/contacts', verifyToken, contactRoutes);
 
-// Example inline protected endpoint
 app.get('/api/protected', verifyToken, (req, res) => {
   res.json({ message: `Hello user ${req.userId}, you have access!` });
 });
@@ -55,7 +52,7 @@ app.get('/api/protected', verifyToken, (req, res) => {
 // ── DATABASE CONNECTION & SERVER STARTUP ───────────────────────────────────────
 mongoose
   .connect(process.env.MONGO_URI, {
-    dbName: 'test'     // explicitly use the 'test' database
+    dbName: 'test'
   })
   .then(() => {
     const PORT = process.env.PORT || 5000;

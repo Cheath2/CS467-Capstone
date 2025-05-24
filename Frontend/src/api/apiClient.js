@@ -36,4 +36,16 @@ api.interceptors.response.use(
   }
 );
 
+// ✅ Contact-specific API helper
+api.updateContact = async (contactId, updatedFields) => {
+  try {
+    const res = await api.put(`/contacts/${contactId}`, updatedFields);
+    console.log('✅ Contact updated:', res.data);
+    return res.data;
+  } catch (err) {
+    console.error('❌ Failed to update contact:', err.response?.data || err.message);
+    throw err;
+  }
+};
+
 export default api;

@@ -1,8 +1,6 @@
-// server/routes/user.js
-
-const express            = require('express');
-const User               = require('../models/User');
-const { getCurrentUser } = require('../controllers/userController');
+const express = require('express');
+const User = require('../models/User');
+const { getCurrentUser, updateCurrentUser } = require('../controllers/userController');
 
 const router = express.Router();
 
@@ -12,6 +10,13 @@ const router = express.Router();
  * @access  Protected (verifyToken applied in index.js)
  */
 router.get('/me', getCurrentUser);
+
+/**
+ * @route   PUT /api/user/me
+ * @desc    Update authenticated user's profile (bio, phone, image, etc.)
+ * @access  Protected
+ */
+router.put('/me', updateCurrentUser);
 
 /**
  * @route   DELETE /api/user/skills/:skillId
