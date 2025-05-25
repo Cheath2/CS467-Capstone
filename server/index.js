@@ -23,7 +23,7 @@ const app = express();
 
 // ── GLOBAL MIDDLEWARE ─────────────────────────────────────────────────────────
 app.use(cors({
-  origin: 'http://localhost:3000',    // ← your client URL
+  origin: 'http://localhost:5173',    // ← your client URL
   credentials: true                   // ← allow cookies to be sent
 }));
 app.use(express.json());               // parse JSON bodies
@@ -58,7 +58,7 @@ mongoose
     dbName: 'test'     // explicitly use the 'test' database
   })
   .then(() => {
-    const PORT = process.env.PORT || 5000;
+    const PORT = process.env.PORT || 5009;
     app.listen(PORT, () => {
       console.log(`🚀 Server listening on http://localhost:${PORT}`);
     });
