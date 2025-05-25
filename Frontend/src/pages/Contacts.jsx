@@ -8,16 +8,20 @@ import {
     Divider,
     IconButton,
     TextField,
-    Grid
+    Grid,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions
 } from '@mui/material';
-import { Delete, Add } from '@mui/icons-material';
+import { Delete, Add, Edit } from '@mui/icons-material';
 import api from '../api/apiClient';
 import { useState, useEffect } from 'react';
 
 const Contacts = () => {
     // State for loaded contacts, form inputs, and errors
     const [contacts, setContacts] = useState([]);
-    const [newContact, setNewContact] = useState({ name: '', email: '', phone: '' });
+    const [newContact, setNewContact] = useState({ name: '', email: '', phone: '', notes: '' });
     const [error, setError] = useState('');
   
     // Fetch persisted contacts on component mount
@@ -40,7 +44,7 @@ const Contacts = () => {
       try {
         const { data: saved } = await api.post('/contacts', newContact); // POST /api/contacts
         setContacts([...contacts, saved]);                         // update UI
-        setNewContact({ name: '', email: '', phone: '' });
+        setNewContact({ name: '', email: '', phone: '', notes: '' });
         setError('');
       } catch (err) {
         console.error('Couldn\'t save contact:', err);
@@ -60,6 +64,29 @@ const Contacts = () => {
       }
     };
     
+    // Update contact 
+    const handleUpdateContact = async () => {
+        try {
+            const { data: updated } = await api.put(`/contacts/${selectedContact._id}`, selectedContact);
+            setContacts((prev) =>
+            prev.map((c) => (c._id === updated._id ? updated : c))
+            );
+            setEditDialogOpen(false);
+            setSelectedContact(null);
+        } catch (err) {
+            console.error('Failed to update contact:', err);
+            setError('Failed to update contact');
+        }
+    };
+
+    const [editDialogOpen, setEditDialogOpen] = useState(false);
+    const [selectedContact, setSelectedContact] = useState(null);
+
+    const openEditDialog = (contact) => {
+    setSelectedContact({ ...contact });
+    setEditDialogOpen(true);
+    };
+
     return (
         <Box sx={{
             maxWidth: 'md',
@@ -123,6 +150,20 @@ const Contacts = () => {
                         <Add />
                     </Button>
                 </Grid>
+
+                <Grid item xs={12}>
+                    <TextField
+                        fullWidth
+                        label="Notes"
+                        variant="outlined"
+                        multiline
+                        rows={2}
+                        value={newContact.notes}
+                        onChange={(e) => setNewContact({ ...newContact, notes: e.target.value })}
+                        placeholder="e.g. Google recruiter from Grace Hopper Conference"
+                    />
+                </Grid>
+
             </Grid>
 
             <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
@@ -130,24 +171,87 @@ const Contacts = () => {
                     <Box key={index}>
                         <ListItem
                             secondaryAction={
-                                <IconButton
-                                    edge="end"
-                                    aria-label="delete"
-                                    onClick={() => handleDeleteContact(index)}
-                                >
-                                    <Delete sx={{ color: '#4C8285' }} />
-                                </IconButton>
+                                <>
+                                    <IconButton
+                                        edge="end"
+                                        aria-label="edit"
+                                        onClick={() => openEditDialog(contact)}
+                                        sx={{ mr: 1 }}
+                                    >
+                                        <Edit sx={{ color: '#4C8285' }} />
+                                    </IconButton>
+                                    <IconButton
+                                        edge="end"
+                                        aria-label="delete"
+                                        onClick={() => handleDeleteContact(contact._id)}
+                                    >
+                                        <Delete sx={{ color: '#4C8285' }} />
+                                    </IconButton>
+                                    </>
                             }
                         >
                             <ListItemText
                                 primary={contact.name}
-                                secondary={`${contact.email} | ${contact.phone}`}
+                                secondary={
+                                    <>
+                                        {contact.email} | {contact.phone}
+                                        <br />
+                                        {contact.notes}
+                                    </>
+                                }
                             />
                         </ListItem>
                         {index < contacts.length - 1 && <Divider />}
                     </Box>
                 ))}
             </List>
+            {selectedContact && (
+                <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} fullWidth maxWidth="sm">
+                    <DialogTitle>Edit Contact</DialogTitle>
+                    <DialogContent>
+                    <TextField
+                        fullWidth
+                        label="Name"
+                        margin="dense"
+                        value={selectedContact.name}
+                        onChange={(e) => setSelectedContact({ ...selectedContact, name: e.target.value })}
+                    />
+                    <TextField
+                        fullWidth
+                        label="Email"
+                        margin="dense"
+                        value={selectedContact.email}
+                        onChange={(e) => setSelectedContact({ ...selectedContact, email: e.target.value })}
+                    />
+                    <TextField
+                        fullWidth
+                        label="Phone"
+                        margin="dense"
+                        value={selectedContact.phone}
+                        onChange={(e) => setSelectedContact({ ...selectedContact, phone: e.target.value })}
+                    />
+                    <TextField
+                        fullWidth
+                        label="Notes"
+                        multiline
+                        rows={2}
+                        margin="dense"
+                        value={selectedContact.notes}
+                        onChange={(e) => setSelectedContact({ ...selectedContact, notes: e.target.value })}
+                    />
+                    </DialogContent>
+                    <DialogActions>
+                    <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
+                    <Button
+                        variant="contained"
+                        onClick={handleUpdateContact}
+                        sx={{ backgroundColor: '#4C8285', '&:hover': { backgroundColor: '#3a6a6d' } }}
+                    >
+                        Save
+                    </Button>
+                    </DialogActions>
+                </Dialog>
+                )}
         </Box>
     );
 };
