@@ -57,6 +57,11 @@ const JobTracker = () => {
   }, []);
 
   const handleSave = async () => {
+      if (!skills || skills.length === 0) {
+         // ADD this to check for empty skills
+         setError("Please enter at least one skill");
+         return;
+      }
     const jobPayload = {
       company,
       role,
