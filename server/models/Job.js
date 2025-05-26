@@ -15,7 +15,16 @@ const jobSchema = new mongoose.Schema({
   note:     { type: String },              // ✅ RENAMED from 'notes'
   date:     { type: Date },                // ✅ RENAMED from 'deadline'
 
-  skills:   [{ type: String }]
+  skills:   {
+  type: [String],
+  required: true,
+  validate: {
+    validator: function (arr) {
+      return Array.isArray(arr) && arr.length > 0;
+    },
+    message: 'At least one skill is required.'
+  }
+}
 }, { timestamps: true });
 
 module.exports = mongoose.model('Job', jobSchema);
