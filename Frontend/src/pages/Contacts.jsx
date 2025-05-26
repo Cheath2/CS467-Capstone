@@ -12,7 +12,10 @@ import {
     Dialog,
     DialogTitle,
     DialogContent,
-    DialogActions
+    DialogActions,
+    DialogContentText,
+    Snackbar,
+    Alert
 } from '@mui/material';
 import { Delete, Add, Edit } from '@mui/icons-material';
 import api from '../api/apiClient';
@@ -22,7 +25,23 @@ const Contacts = () => {
     // State for loaded contacts, form inputs, and errors
     const [contacts, setContacts] = useState([]);
     const [newContact, setNewContact] = useState({ name: '', email: '', phone: '', notes: '' });
-    const [error, setError] = useState('');
+
+
+    // New state for delete confirmation
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [contactToDelete, setContactToDelete] = useState(null);
+
+    // New state for Snackbar
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
+    // New Helper for showing snackbar
+    const showSnackbar = (message, severity = 'success') => {
+        setSnackbarMessage(message);
+        setSnackbarSeverity(severity);
+        setSnackbarOpen(true);
+    };
   
     // Fetch persisted contacts on component mount
     useEffect(() => {
@@ -32,7 +51,7 @@ const Contacts = () => {
           setContacts(data);
         } catch (err) {
           console.error('Error loading contacts:', err);
-          setError('Could not load contacts');
+          showSnackbar('Could not load contacts', 'error');
         }
       };
       fetchContacts();
@@ -45,23 +64,26 @@ const Contacts = () => {
         const { data: saved } = await api.post('/contacts', newContact); // POST /api/contacts
         setContacts([...contacts, saved]);                         // update UI
         setNewContact({ name: '', email: '', phone: '', notes: '' });
-        setError('');
+        showSnackbar('Contact added');
       } catch (err) {
         console.error('Couldn\'t save contact:', err);
-        setError('Failed to save contact');
+        showSnackbar('Failed to add contact', 'error');
       }
     };
   
-    // Delete contact via API
-    const handleDeleteContact = async (id) => {
-      try {
-        await api.delete(`/contacts/${id}`);                      // DELETE /api/contacts/:id
-        setContacts(contacts.filter(c => c._id !== id));
-        setError('');
-      } catch (err) {
-        console.error('Couldn\'t delete contact:', err);
-        setError('Failed to delete contact');
-      }
+    // ⬇️ NEW DELETE CONFIRMATION FUNCTION
+    const confirmDeleteContact = async () => {
+        try {
+          await api.delete(`/contacts/${contactToDelete._id}`);
+          setContacts(contacts.filter(c => c._id !== contactToDelete._id));
+          showSnackbar('Contact deleted'); // ⬅️ NEW
+        } catch (err) {
+          console.error('Couldn\'t delete contact:', err);
+          showSnackbar('Failed to delete contact', 'error'); // ⬅️ NEW
+        } finally {
+          setDeleteDialogOpen(false);
+          setContactToDelete(null);
+        }
     };
     
     // Update contact 
@@ -73,9 +95,10 @@ const Contacts = () => {
             );
             setEditDialogOpen(false);
             setSelectedContact(null);
+            showSnackbar('Contact updated');
         } catch (err) {
             console.error('Failed to update contact:', err);
-            setError('Failed to update contact');
+            showSnackbar('Failed to update contact', 'error');
         }
     };
 
@@ -183,7 +206,10 @@ const Contacts = () => {
                                     <IconButton
                                         edge="end"
                                         aria-label="delete"
-                                        onClick={() => handleDeleteContact(contact._id)}
+                                        onClick={() => {
+                                            setContactToDelete(contact); 
+                                            setDeleteDialogOpen(true);
+                                        }}
                                     >
                                         <Delete sx={{ color: '#4C8285' }} />
                                     </IconButton>
@@ -252,6 +278,38 @@ const Contacts = () => {
                     </DialogActions>
                 </Dialog>
                 )}
+
+                {/* NEW DELETE CONFIRMATION DIALOG */}
+                <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+                    <DialogTitle>Confirm Deletion</DialogTitle>
+                    <DialogContent>
+                    <DialogContentText>
+                        Are you sure you want to delete the contact "{contactToDelete?.name}"?
+                    </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                    <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+                    <Button
+                        variant="contained"
+                        onClick={confirmDeleteContact}
+                        sx={{ backgroundColor: '#4C8285', '&:hover': { backgroundColor: '#3a6a6d' } }}
+                    >
+                        Delete
+                    </Button>
+                    </DialogActions>
+                </Dialog>
+
+                {/* NEW SNACKBAR */}
+                <Snackbar
+                    open={snackbarOpen}
+                    autoHideDuration={2500}
+                    onClose={() => setSnackbarOpen(false)}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                >
+                    <Alert severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                    </Alert>
+                </Snackbar>
         </Box>
     );
 };
