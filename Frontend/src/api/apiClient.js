@@ -1,16 +1,21 @@
-// src/api/apiClient.js
 import axios from 'axios';
 
-// Create Axios instance for API calls
+// Create Axios instance
 const api = axios.create({
-  baseURL: '/api',              // assumes your dev server proxies /api to your Express app
+  baseURL: '/api',
   headers: {
     'Content-Type': 'application/json'
   },
-  withCredentials: true         // ← include cookies (for refresh-token flow)
+  withCredentials: true
 });
 
-// Interceptor: on 401 Unauthorized, try refreshing the access token once
+// ✅ Restore token after page reload
+const token = localStorage.getItem('accessToken');
+if (token) {
+  api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+}
+
+// Interceptor: handle 401 by trying to refresh once
 api.interceptors.response.use(
   response => response,
   async error => {
@@ -18,10 +23,11 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        const { data } = await api.post('/auth/refresh');  // ← call refresh endpoint
-        api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;  // ← set new token for future requests
+        const { data } = await api.post('/auth/refresh');
+        localStorage.setItem('accessToken', data.token); // 🔁 Store refreshed token
+        api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
         originalRequest.headers['Authorization'] = `Bearer ${data.token}`;
-        return api(originalRequest);  // ← retry original request
+        return api(originalRequest); // Retry original request
       } catch (refreshError) {
         return Promise.reject(refreshError);
       }
@@ -29,5 +35,17 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// ✅ Contact-specific API helper
+api.updateContact = async (contactId, updatedFields) => {
+  try {
+    const res = await api.put(`/contacts/${contactId}`, updatedFields);
+    console.log('✅ Contact updated:', res.data);
+    return res.data;
+  } catch (err) {
+    console.error('❌ Failed to update contact:', err.response?.data || err.message);
+    throw err;
+  }
+};
 
 export default api;

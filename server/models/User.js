@@ -1,5 +1,3 @@
-// server/models/User.js
-
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
@@ -7,7 +5,19 @@ const userSchema = new mongoose.Schema({
   lastName:  { type: String, required: true },
   email:     { type: String, unique: true, required: true },
   password:  { type: String, required: true },
-  skills:    [{ type: mongoose.Schema.Types.ObjectId, ref: 'Skill' }]
+
+  // Optional reference to related skills
+  skills:    [{ type: mongoose.Schema.Types.ObjectId, ref: 'Skill' }],
+
+  // Optional profile fields
+  phone:      { type: String },
+  bio:        { type: String },
+  profileImage: { type: String }, // Could be base64 or a URL
+
+  // Fields for token-based session handling
+  refreshToken:           { type: String },
+  refreshTokenExpiresAt:  { type: Date }
+
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

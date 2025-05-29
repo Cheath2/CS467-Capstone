@@ -26,17 +26,18 @@ const Contacts = () => {
     const [contacts, setContacts] = useState([]);
     const [newContact, setNewContact] = useState({ name: '', email: '', phone: '', notes: '' });
 
+    // ✨ From Casey-4 (editable contact state)
+    const [editableIndex, setEditableIndex] = useState(null);
+    const [editContact, setEditContact] = useState({ name: '', email: '', phone: '' });
 
-    // New state for delete confirmation
+    // ✨ From main (delete confirmation and snackbar)
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [contactToDelete, setContactToDelete] = useState(null);
 
-    // New state for Snackbar
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
-    // New Helper for showing snackbar
     const showSnackbar = (message, severity = 'success') => {
         setSnackbarMessage(message);
         setSnackbarSeverity(severity);
