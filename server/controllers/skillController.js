@@ -26,8 +26,15 @@ exports.addSkillToUser = async (req, res) => {
     }
 
     // 3) Prevent duplicate entries
-    if (user.skills.some(id => id.toString() === skillId)) {
-      return res.status(400).json({ msg: 'User already has this skill' });
+    await user.populate({
+      path: 'skills',
+      select: 'name'
+    });
+
+    const alreadyHasSkill = user.skills.some(s => s.name.trim().toLowerCase() === skill.name.trim().toLowerCase());
+
+    if (alreadyHasSkill) {
+      return res.status(400).json({ msg: 'User already has this skill (case-insensitive)' });
     }
 
     // 4) Add skill and save
