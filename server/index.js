@@ -12,6 +12,7 @@ const skillRoutes = require('./routes/skillRoutes');
 const userRoutes  = require('./routes/user');
 const jobRoutes   = require('./routes/jobRoutes');
 const contactRoutes = require('./routes/contactRoutes');
+const jobSearchRoutes = require('./routes/jobSearchRoutes');
 
 // ── JWT auth middleware ───────────────────────────────────────────────────────
 const verifyToken = require('./middleware/verifyToken');
@@ -34,6 +35,7 @@ const path = require('path'); // ← Add to your top-level imports if not alread
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/upload', uploadRoutes);               // Handle image upload requests
+app.use('/api', jobSearchRoutes);
 
 // ── PUBLIC ROUTES ─────────────────────────────────────────────────────────────
 app.get('/', (req, res) => res.send('✅ Job Tracker API is up and running'));
@@ -55,7 +57,7 @@ mongoose
     dbName: 'test'
   })
   .then(() => {
-    const PORT = process.env.PORT || 5000;
+    const PORT = process.env.PORT || 5007;
     app.listen(PORT, () => {
       console.log(`🚀 Server listening on http://localhost:${PORT}`);
     });
