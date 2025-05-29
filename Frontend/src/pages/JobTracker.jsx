@@ -13,6 +13,7 @@ import AddIcon from '@mui/icons-material/Add';
 import api from '../api/apiClient';
 import JobCard from '../components/JobCard';
 import JobDialog from '../components/JobDialog';
+import JobQuickSearchCard from '../components/JobQuickSearchCard';
 
 const JobTracker = () => {
   const [open, setOpen] = useState(false);
@@ -30,6 +31,7 @@ const JobTracker = () => {
   const [error, setError] = useState('');
 
   const [filterStatus, setFilterStatus] = useState('All');
+  const [aiResults, setAiResults] = useState([]);
 
   const resetForm = () => {
     setCompany('');
@@ -57,11 +59,11 @@ const JobTracker = () => {
   }, []);
 
   const handleSave = async () => {
-      if (!skills || skills.length === 0) {
-         // ADD this to check for empty skills
-         setError("Please enter at least one skill");
-         return;
-      }
+    if (!skills || skills.length === 0) {
+      // ADD this to check for empty skills
+      setError("Please enter at least one skill");
+      return;
+    }
     const jobPayload = {
       company,
       role,
@@ -211,6 +213,51 @@ const JobTracker = () => {
                 </Grid>
               ))}
           </Grid>
+        </Box>
+
+        {/* AI Job Quick Search Section */}
+        <Box sx={{ backgroundColor: '#e6f0ee', borderRadius: 3, px: 4, py: 6, boxShadow: 1, mt: 6 }}>
+          <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} gap={4}>
+            <Box flex={1}>
+              <JobQuickSearchCard onResults={setAiResults} />
+            </Box>
+            <Box flex={2}>
+              <Typography variant="h6" sx={{ mb: 2, color: '#4C8285', fontWeight: 'bold', fontSize: 30, textAlign: 'center' }}>
+                AI-Recommended Jobs
+              </Typography>
+              <Box sx={{ backgroundColor: '#fff', borderRadius: 2, p: 2, minHeight: 200 }}>
+              {Array.isArray(aiResults) && aiResults.length > 0 ? (
+                aiResults.map((job, i) => (
+                  <Box
+                    key={i}
+                    sx={{
+                      mb: 3,
+                      p: 2,
+                      border: '1px solid #ddd',
+                      borderRadius: 2,
+                      backgroundColor: '#f9f9f9',
+                    }}
+                  >
+                    <Typography variant="subtitle1" fontWeight="bold" sx={{ color: '#4C8285' }}>
+                      {job.title}
+                    </Typography>
+                    <Typography variant="body2" sx={{ mt: 0.5 }}>
+                      <strong>Company:</strong> {job.company}
+                    </Typography>
+                    <Typography variant="body2">
+                      <strong>Location:</strong> {job.location}
+                    </Typography>
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      {job.summary}
+                    </Typography>
+                  </Box>
+                ))
+              ) : (
+                <Typography color="text.secondary">No results yet. Complete the AI-Powered Job Search form and AI will provide you with relevant job opportunities.</Typography>
+              )}
+              </Box>
+            </Box>
+          </Box>
         </Box>
       </Container>
 
