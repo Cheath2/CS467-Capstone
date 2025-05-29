@@ -24,8 +24,9 @@ const JobTracker = () => {
   const [role, setRole] = useState('');
   const [link, setLink] = useState('');
   const [date, setDate] = useState(null);
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState('Active'); // ✅ default value
   const [note, setNote] = useState('');
+  const [skills, setSkills] = useState([]);
   const [error, setError] = useState('');
 
   const [filterStatus, setFilterStatus] = useState('All');
@@ -35,8 +36,9 @@ const JobTracker = () => {
     setRole('');
     setLink('');
     setDate(null);
-    setStatus('');
+    setStatus('Active'); // ✅ default value
     setNote('');
+    setSkills([]);
     setIsEditing(false);
     setEditIndex(null);
     setError('');
@@ -55,25 +57,35 @@ const JobTracker = () => {
   }, []);
 
   const handleSave = async () => {
+      if (!skills || skills.length === 0) {
+         // ADD this to check for empty skills
+         setError("Please enter at least one skill");
+         return;
+      }
     const jobPayload = {
       company,
-      role, // backend now expects 'role'
+      role,
       link,
-      date: date ? new Date(date).toISOString() : null,
-      status: status.toLowerCase(), // ensure lowercase to match enum
-      note
+      date: date ? new Date(date).toISOString() : null, // ✅ convert to ISO
+      status: status.toLowerCase(),
+      note,
+      skills,
     };
+
+    console.log('💾 Saving job:', jobPayload); // ✅ log outgoing data
 
     try {
       if (isEditing && editIndex !== null) {
         const jobToEdit = jobs[editIndex];
         const res = await api.put(`/jobs/${jobToEdit._id}`, jobPayload);
+        console.log('📝 PUT response:', res.data); // ✅ log response
         const updated = res.data;
         const updatedJobs = [...jobs];
         updatedJobs[editIndex] = updated;
         setJobs(updatedJobs);
       } else {
         const res = await api.post('/jobs', jobPayload);
+        console.log('🆕 POST response:', res.data); // ✅ log response
         setJobs([res.data, ...jobs]);
       }
       resetForm();
@@ -86,12 +98,13 @@ const JobTracker = () => {
 
   const handleEdit = (index) => {
     const job = jobs[index];
-    setCompany(job.company);
-    setRole(job.role);
-    setLink(job.link);
-    setDate(job.date);
-    setStatus(job.status);
-    setNote(job.note);
+    setCompany(job.company || '');
+    setRole(job.role || '');
+    setLink(job.link || '');
+    setDate(job.date ? new Date(job.date) : null); // ✅ convert if not null
+    setStatus(job.status || 'Active');
+    setNote(job.note || '');
+    setSkills(job.skills || []);
     setEditIndex(index);
     setIsEditing(true);
     setError('');
@@ -218,6 +231,8 @@ const JobTracker = () => {
         setStatus={setStatus}
         note={note}
         setNote={setNote}
+        skills={skills}
+        setSkills={setSkills}
         error={error}
       />
     </Box>
