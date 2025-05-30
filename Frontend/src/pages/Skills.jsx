@@ -1,3 +1,6 @@
+import SkillFrequencyGraph from '../components/SkillFrequencyGraph';
+import MissingSkillsChart from '../components/MissingSkillsChart';
+
 import {
   Box,
   Typography,
@@ -42,6 +45,9 @@ const Skills = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
+  // state for graph
+  const [showGraph, setShowGraph] = useState(false);
+
   // available levels for dropdown
   const levelOptions = ['Beginner', 'Intermediate', 'Advanced'];
 
@@ -69,6 +75,16 @@ const Skills = () => {
   // add new skill to backend
   const handleAddSkill = async () => {
     if (!newSkill.name.trim()) return;
+
+    // Check for duplicates (case-insensitive)
+    const duplicate = skills.some(
+      s => s.name.trim().toLowerCase() === newSkill.name.trim().toLowerCase()
+    );
+    if (duplicate) {
+      showSnackbar('Skill already exists in your list', 'error');
+      return;
+    }
+
     try {
       const { data: saved } = await api.post('/skills', newSkill);
       setSkills([...skills, saved]);
@@ -288,6 +304,28 @@ const Skills = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
+
+      {/* Button to toggle skill analytics graph */}
+      <Box sx={{ mt: 4, textAlign: 'center' }}>
+        <Button
+          variant="outlined"
+          onClick={() => setShowGraph(prev => !prev)}
+          sx={{ color: '#4C8285', borderColor: '#4C8285', '&:hover': { backgroundColor: '#f0f0f0' } }}
+        >
+          {showGraph ? 'Hide Skill Analytics' : 'Show Skill Analytics'}
+        </Button>
+      </Box>
+
+      {/* Conditional rendering of skill analytics graph */}
+      {showGraph && (
+        <Box sx={{ mt: 4 }}>
+          <SkillFrequencyGraph />
+          <Box sx={{ mt: 6 }}>
+            <MissingSkillsChart />
+          </Box>
+        </Box>
+      )}
+
     </Box>
   );
 };
