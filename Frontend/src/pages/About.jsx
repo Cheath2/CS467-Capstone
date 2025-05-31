@@ -167,17 +167,17 @@ const About = () => {
               {
                 name: 'Savannah',
                 role: 'Frontend Developer',
-                image: '/team/CartoonGirl.png',
+                image: '/team/Savannah.png',
               },
               {
                 name: 'Rutu',
                 role: 'Backend Developer',
-                image: '/team/rutu.jpg',
+                image: '/team/Rutu.png',
               },
               {
                 name: 'Casey',
                 role: 'Backend Developer',
-                image: '/team/casey.jpg',
+                image: '/team/casey.png',
               },
             ].map((member, index) => (
               <Grid item xs={12} sm={4} key={index}>

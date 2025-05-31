@@ -8,7 +8,7 @@ export default defineConfig({
     // Proxy /api calls to your Express backend on port 5000
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost:5007',
         changeOrigin: true,
         secure: false
       }
