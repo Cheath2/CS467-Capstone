@@ -35,6 +35,10 @@ const fetchJobsFromAI = async (req, res) => {
       messages: [{ role: 'user', content: prompt }],
     });
 
+
+    // debug
+    console.log('🧠 OpenAI raw response:', completion.choices[0].message.content);
+
     let jobs = [];
 
         // ✅ DEBUG LOGS
