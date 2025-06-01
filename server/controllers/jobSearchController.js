@@ -37,6 +37,10 @@ const fetchJobsFromAI = async (req, res) => {
 
     let jobs = [];
 
+        // ✅ DEBUG LOGS
+    console.log('🔍 AI Prompt Sent:', prompt);
+    console.log('🧠 AI Raw Output:', completion.choices[0].message.content);
+
   try {
     jobs = JSON.parse(completion.choices[0].message.content);
   } catch (parseError) {
