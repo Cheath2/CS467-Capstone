@@ -21,7 +21,7 @@ const Profile = () => {
         setUser(res.data);
         setEditableUser(res.data);
         if (res.data.profileImage) {
-          setProfileImage(`http://localhost:5000${res.data.profileImage}`);
+           setProfileImage(`${import.meta.env.VITE_API_BASE_URL}${res.data.profileImage}`);
         }
       })
       .catch(err => console.error('Error loading profile:', err.response?.data || err));
@@ -40,7 +40,7 @@ const Profile = () => {
       });
 
       const imageUrl = res.data.imageUrl;
-      setProfileImage(`http://localhost:5000${imageUrl}`);
+      setProfileImage(`${import.meta.env.VITE_API_BASE_URL}${imageUrl}`);
       setEditableUser(prev => ({ ...prev, profileImage: imageUrl }));
     } catch (err) {
       console.error('Image upload failed:', err);
