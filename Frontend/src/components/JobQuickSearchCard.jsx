@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Card, CardContent, Typography, TextField, MenuItem, Button, CircularProgress } from '@mui/material';
-import axios from 'axios';
+import api from '../api/apiClient';
 
 const experienceOptions = ['Entry Level', 'Mid Level', 'Senior Level'];
 const jobTypeOptions = ['Full-Time', 'Part-Time'];
@@ -22,7 +22,7 @@ const JobQuickSearchCard = ({ onResults }) => {
   const handleSearch = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('/api/job-search', form);
+      const response = await api.post('/job-search', form);
 
       // Log the entire response data so you can inspect it in the console
       console.log('🛠 job-search response.data:', response.data);
