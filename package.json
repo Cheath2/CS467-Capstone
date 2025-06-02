@@ -195,7 +195,7 @@
     "openai": "^5.0.1"
   },
   "scripts": {
-     "start": "node server/index.js",  
+    "start": "node server/index.js",
     "start:server": "node server/index.js",
     "start:client": "npm --prefix client start",
     "build:client": "npm --prefix client run build",
