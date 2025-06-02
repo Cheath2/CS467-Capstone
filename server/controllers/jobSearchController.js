@@ -47,6 +47,10 @@ const fetchJobsFromAI = async (req, res) => {
 
   try {
     jobs = JSON.parse(completion.choices[0].message.content);
+    if (!Array.isArray(jobs) || jobs.length === 0) {
+  console.warn('⚠️ Parsed jobs are empty or invalid:', jobs);
+  return res.status(500).json({ error: 'AI returned empty or invalid job data' });
+}
   } catch (parseError) {
     console.error('Failed to parse JSON:', parseError);
     return res.status(500).json({ error: 'Invalid AI response format' });
