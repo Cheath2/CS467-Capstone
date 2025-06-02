@@ -4,11 +4,11 @@ const OpenAI = require('openai');
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const fetchJobsFromAI = async (req, res) => {
+  console.log('✔️  HIT /api/job-search (deployed)');
   console.log('==== /api/job-search CALLED ====');
   console.log('Request body:', req.body);
   console.log(
-    'OPENAI_API_KEY prefix:', 
-    process.env.OPENAI_API_KEY?.slice(0, 10) + '…'
+    'OPENAI_API_KEY prefix:', process.env.OPENAI_API_KEY?.slice(0, 10) + '…'
   );
 
   const { role, experience, location, salary, jobType } = req.body;

@@ -15,17 +15,28 @@ const JobQuickSearchCard = ({ onResults }) => {
   });
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
+ const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSearch = async () => {
     setLoading(true);
     try {
-      const res = await axios.post('/api/job-search', form);
-      onResults(res.data.jobs);
+      const response = await axios.post('/api/job-search', form);
+
+      // Log the entire response data so you can inspect it in the console
+      console.log('🛠 job-search response.data:', response.data);
+
+      // If the server returned an array under `jobs`, pass it along. Otherwise pass empty array.
+      if (Array.isArray(response.data.jobs)) {
+        onResults(response.data.jobs);
+      } else {
+        console.warn('⚠️ response.data.jobs is not an array:', response.data);
+        onResults([]);
+      }
     } catch (error) {
-      onResults('Something went wrong. Please try again.');
+      console.error('❌ Error calling /api/job-search:', error.response?.data || error.message);
+      onResults([]);  // always pass an array on failure
     } finally {
       setLoading(false);
     }
